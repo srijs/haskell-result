@@ -1,6 +1,6 @@
 name:                result
 version:             0.1.0.0
-synopsis:            Encode multiple failures or a single success
+synopsis:            Encode success or at least one error
 homepage:            https://github.com/srijs/haskell-result
 license:             MIT
 license-file:        LICENSE

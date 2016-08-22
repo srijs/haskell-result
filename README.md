@@ -1,2 +1,2 @@
 # haskell-result
-Encode multiple failures or a single success
+Encode success or at least one error
