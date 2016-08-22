@@ -1,6 +1,10 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Data.Result where
+module Data.Result
+  ( Result
+  , get, errors
+  , raise
+  ) where
 
 
 import Data.Monoid
