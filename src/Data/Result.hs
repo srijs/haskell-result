@@ -4,6 +4,7 @@ module Data.Result
   ( Result
   , get, errors
   , raise
+  , accumulate
   ) where
 
 
@@ -86,3 +87,24 @@ errors (Result e) =
       NonEmpty.toList es
     Right _ ->
       []
+
+
+data AccumulatingResult e a = AccRes { getResult :: Result e a }
+
+
+instance Functor (AccumulatingResult e) where
+  fmap f r =
+    AccRes (fmap f (getResult r))
+
+
+instance Applicative (AccumulatingResult e) where
+  pure a =
+    AccRes (pure a)
+
+  x <*> y =
+    AccRes (getResult x `zap` getResult y)
+
+
+accumulate :: Traversable t => t (Result e a) -> Result e (t a)
+accumulate t =
+  getResult (traverse AccRes t)
