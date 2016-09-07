@@ -54,12 +54,12 @@ hoist r =
 
 raiseT :: Applicative f => e -> ResultT e f a
 raiseT e =
-  ResultT (pure (raise e))
+  hoist (raise e)
 
 
 raiseAllT :: Applicative f => [e] -> ResultT e f ()
 raiseAllT es =
-  ResultT (pure (raiseAll es))
+  hoist (raiseAll es)
 
 
 accumulateT :: (Traversable t , Applicative f) => t (ResultT e f a) -> ResultT e f (t a)
@@ -69,4 +69,4 @@ accumulateT results =
 
 instance State.MonadState s m => State.MonadState s (ResultT e m) where
   state f =
-    ResultT (pure <$> State.state f)
+    lift (State.state f)
