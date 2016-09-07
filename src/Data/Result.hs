@@ -3,7 +3,7 @@
 module Data.Result
   ( Result
   , get, errors
-  , raise
+  , raise, raiseAll
   , accumulate
   ) where
 
@@ -69,6 +69,15 @@ instance Bitraversable Result where
 raise :: e -> Result e a
 raise e =
   Result (Left (e NonEmpty.:| []))
+
+
+raiseAll :: [e] -> Result e ()
+raiseAll es =
+  Result $ case es of
+    [] ->
+      Right ()
+    (e:es') ->
+      Left (e NonEmpty.:| es')
 
 
 get :: Result e a -> Maybe a

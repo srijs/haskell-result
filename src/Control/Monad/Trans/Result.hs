@@ -51,6 +51,11 @@ raiseT e =
   ResultT (pure (raise e))
 
 
+raiseAllT :: Applicative f => [e] -> ResultT e f ()
+raiseAllT es =
+  ResultT (pure (raiseAll es))
+
+
 accumulateT :: (Traversable t , Applicative f) => t (ResultT e f a) -> ResultT e f (t a)
 accumulateT results =
   ResultT (accumulate <$> traverse runResultT results)
