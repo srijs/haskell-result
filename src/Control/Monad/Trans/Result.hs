@@ -1,8 +1,9 @@
 {-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, UndecidableInstances #-}
 
 module Control.Monad.Trans.Result
-  ( ResultT, runResultT
-  , raiseT, accumulateT
+  ( ResultT, runResultT, hoist
+  , raiseT, raiseAllT
+  , accumulateT
   ) where
 
 
@@ -44,6 +45,11 @@ instance Monad m => Monad (ResultT e m) where
 instance MonadTrans (ResultT e) where
   lift m =
     ResultT (pure <$> m)
+
+
+hoist :: Applicative f => Result e a -> ResultT e f a
+hoist r =
+  ResultT (pure r)
 
 
 raiseT :: Applicative f => e -> ResultT e f a
