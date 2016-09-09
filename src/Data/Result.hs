@@ -5,6 +5,7 @@ module Data.Result
   , get, errors
   , raise, raiseAll
   , accumulate
+  , fromEither
   ) where
 
 
@@ -96,6 +97,15 @@ errors (Result e) =
       NonEmpty.toList es
     Right _ ->
       []
+
+
+fromEither :: Either e a -> Result e a
+fromEither eith =
+  Result $ case eith of
+    Left e ->
+      Left (e NonEmpty.:| [])
+    Right a ->
+      Right a
 
 
 data AccumulatingResult e a = AccRes { getResult :: Result e a }

@@ -4,12 +4,14 @@ module Control.Monad.Trans.Result
   ( ResultT, runResultT, hoist
   , raiseT, raiseAllT
   , accumulateT
+  , fromExceptT
   ) where
 
 
 import Control.Applicative (liftA2)
 import Control.Monad (join)
 import Control.Monad.Trans.Class
+import Control.Monad.Trans.Except
 import qualified Control.Monad.State.Class as State
 
 import Data.Functor.Identity
@@ -65,6 +67,11 @@ raiseAllT es =
 accumulateT :: (Traversable t , Applicative f) => t (ResultT e f a) -> ResultT e f (t a)
 accumulateT results =
   ResultT (accumulate <$> traverse runResultT results)
+
+
+fromExceptT :: Monad m => ExceptT e m a -> ResultT e m a
+fromExceptT excT =
+  ResultT (fromEither <$> runExceptT excT)
 
 
 instance State.MonadState s m => State.MonadState s (ResultT e m) where
