@@ -69,7 +69,7 @@ accumulateT results =
   ResultT (accumulate <$> traverse runResultT results)
 
 
-fromExceptT :: Monad m => ExceptT e m a -> ResultT e m a
+fromExceptT :: Functor f => ExceptT e f a -> ResultT e f a
 fromExceptT excT =
   ResultT (fromEither <$> runExceptT excT)
 
