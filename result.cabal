@@ -1,5 +1,5 @@
 name:                result
-version:             0.2.4.0
+version:             0.2.5.0
 synopsis:            Encode success or at least one error
 homepage:            https://github.com/srijs/haskell-result
 license:             MIT
