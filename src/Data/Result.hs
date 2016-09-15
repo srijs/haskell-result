@@ -13,20 +13,19 @@ import Data.Bifunctor
 import Data.Bifoldable
 import Data.Bitraversable
 import Data.Key
-import qualified Data.List.NonEmpty as NonEmpty
 import Data.Monoid
 
 
 newtype Result e a =
-    Result (Either (NonEmpty.NonEmpty e) a)
+    Result (Either (e, [e]) a)
   deriving (Eq, Ord, Show, Functor, Applicative, Monad, Foldable)
 
 
 instance Traversable (Result e) where
-  traverse f (Result e) =
-    case e of
-      Left es ->
-        pure (Result (Left es))
+  traverse f (Result x) =
+    case x of
+      Left (e, es) ->
+        pure (Result (Left (e, es)))
       Right a ->
         Result . Right <$> f a
 
@@ -36,40 +35,44 @@ instance Zip (Result e) where
     case (mea, meb) of
       (Result (Right eaa), Result (Right eba)) ->
         Result (Right (f eaa eba))
-      _ ->
-        Result (Left (NonEmpty.fromList (errors mea <> errors meb)))
+      (Result (Left (e, es)), Result (Left (e', es'))) ->
+        Result (Left (e, es ++ e' : es'))
+      (Result (Left ees), _) ->
+        Result (Left ees)
+      (_, Result (Left ees)) ->
+        Result (Left ees)
 
 
 instance Bifunctor Result where
-  bimap f g (Result e) =
-    case e of
-      Left es ->
-        Result (Left (fmap f es))
+  bimap f g (Result x) =
+    case x of
+      Left (e, es) ->
+        Result (Left (f e, fmap f es))
       Right a ->
         Result (Right (g a))
 
 
 instance Bifoldable Result where
-  bifoldMap f g (Result e) =
-    case e of
-      Left es ->
-        foldMap f es
+  bifoldMap f g (Result x) =
+    case x of
+      Left (e, es) ->
+        f e <> foldMap f es
       Right a ->
         g a
 
 
 instance Bitraversable Result where
-  bitraverse f g (Result e) =
-    case e of
-      Left es ->
-        Result . Left <$> traverse f es
+  bitraverse f g (Result x) =
+    case x of
+      Left (e, es) ->
+        (\e' es' -> Result (Left (e', es'))) <$> f e <*> traverse f es
       Right a ->
         Result . Right <$> g a
 
 
 raise :: e -> Result e a
 raise e =
-  Result (Left (e NonEmpty.:| []))
+  Result (Left (e, []))
 
 
 raiseAll :: [e] -> Result e ()
@@ -78,7 +81,7 @@ raiseAll es =
     [] ->
       Right ()
     (e:es') ->
-      Left (e NonEmpty.:| es')
+      Left (e, es')
 
 
 get :: Result e a -> Maybe a
@@ -91,10 +94,10 @@ get (Result e) =
 
 
 errors :: Result e a -> [e]
-errors (Result e) =
-  case e of
-    Left es ->
-      NonEmpty.toList es
+errors (Result x) =
+  case x of
+    Left (e, es) ->
+      e:es
     Right _ ->
       []
 
@@ -103,7 +106,7 @@ fromEither :: Either e a -> Result e a
 fromEither eith =
   Result $ case eith of
     Left e ->
-      Left (e NonEmpty.:| [])
+      Left (e, [])
     Right a ->
       Right a
 
