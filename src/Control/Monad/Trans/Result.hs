@@ -3,7 +3,7 @@
 module Control.Monad.Trans.Result
   ( ResultT, runResultT, hoist
   , raiseT, raiseAllT
-  , accumulateT
+  , accumulateT, accumulateT_
   , fromExceptT
   ) where
 
@@ -67,6 +67,11 @@ raiseAllT es =
 accumulateT :: (Traversable t , Applicative f) => t (ResultT e f a) -> ResultT e f (t a)
 accumulateT results =
   ResultT (accumulate <$> traverse runResultT results)
+
+
+accumulateT_ :: (Traversable t , Applicative f) => t (ResultT e f a) -> ResultT e f ()
+accumulateT_ results =
+  ResultT (accumulate_ <$> traverse runResultT results)
 
 
 fromExceptT :: Functor f => ExceptT e f a -> ResultT e f a

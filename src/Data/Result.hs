@@ -4,7 +4,7 @@ module Data.Result
   ( Result
   , get, errors
   , raise, raiseAll
-  , accumulate
+  , accumulate, accumulate_
   , fromEither
   ) where
 
@@ -12,6 +12,7 @@ module Data.Result
 import Data.Bifunctor
 import Data.Bifoldable
 import Data.Bitraversable
+import Data.Foldable (traverse_)
 import Data.Key
 import Data.Monoid
 
@@ -130,3 +131,8 @@ instance Applicative (AccumulatingResult e) where
 accumulate :: Traversable t => t (Result e a) -> Result e (t a)
 accumulate t =
   getResult (traverse AccRes t)
+
+
+accumulate_ :: Foldable t => t (Result e a) -> Result e ()
+accumulate_ t =
+  getResult (traverse_ AccRes t)
